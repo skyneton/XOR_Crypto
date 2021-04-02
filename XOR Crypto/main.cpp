@@ -1,6 +1,7 @@
 #include <iostream>
 using namespace std;
 #define endl '\n'
+#define SAFE_FREE(a) if(a) {free(a); a=NULL;}
 
 void defaultKey(int *key, int SIZE) {
 	srand(time(NULL));
@@ -16,9 +17,10 @@ void printMenu() {
 }
 
 void crypto(int *key, int SIZE) {
-	char arr[100];
+	char arr[101];
 	cout << "문자열 입력: ";
-	cin >> arr;
+	cin.ignore(); //입력버퍼 초기화
+	cin.getline(arr, 100);
 	cout << "결과: ";
 	for (int i = 0; i < strlen(arr); i++) {
 		cout << (char) (arr[i] ^ *(key + i % SIZE));
@@ -26,11 +28,12 @@ void crypto(int *key, int SIZE) {
 	cout << endl << endl;
 }
 
-void keyChange(int* key, int* SIZE) {
-	free(key);
-	char arr[100];
+int* keyChange(int* key, int* SIZE) {
+	SAFE_FREE(key);
+	char arr[101];
 	cout << "문자열 입력: ";
-	cin >> arr;
+	cin.ignore(); //입력버퍼 초기화
+	cin.getline(arr, 100);
 	*SIZE = strlen(arr);
 	key = (int*)malloc(sizeof(int) * *SIZE);
 	for (int i = 0; i < strlen(arr); i++) {
@@ -39,6 +42,7 @@ void keyChange(int* key, int* SIZE) {
 		*(key + i) = tmp;
 	}
 	cout << "키가 변경되었습니다." << endl << endl;
+	return key;
 }
 
 int main() {
@@ -56,10 +60,10 @@ int main() {
 				break;
 			}
 			case 2: {
-				keyChange(key, &SIZE);
+				key = keyChange(key, &SIZE);
 				break;
 			}
 		}
 	}
-	free(key);
+	SAFE_FREE(key);
 }
